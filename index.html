@@ -58,7 +58,14 @@
         font-size: 40px;
         transition: transform 0.3s ease;
       }
-      
+      /* hamburger  */
+      .hamburger{display:none;}
+      .mobile-nav{display:none;position:fixed;top:0;left:0;width:240px;height:100%;background:rgba(15,17,25,0.96);backdrop-filter:blur(8px);padding:80px 20px;box-shadow:2px 0 10px rgba(0,0,0,0.6);z-index:1000}
+      .mobile-nav a{display:block;padding:14px 0;color:rgba(255,255,255,0.9);font-weight:600;text-decoration:none}
+      .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(2px);z-index:999}
+      .overlay.show{display:block}
+
+
       .cta{padding:12px 20px;border-radius:14px;border:1px solid rgba(255, 255, 255, 0); color:#3b82f6;background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));backdrop-filter:blur(12px);cursor:pointer;font-weight:700}
       .desktop-nav{display:none}
       /* scratch reveal overlay for logo */
@@ -82,20 +89,9 @@
       @media (max-width:520px){
         .nav{display: flex; justify-content: center; align-items: center; flex-direction: row; gap: 2px; }
         }
-    @media (max-width: 768px) {
-  .ball-left {
-    position: absolute;
-    left: 10%;
-    top: 30%;
-  }
-
-  .ball-right {
-    position: absolute;
-    right: 10%;
-    top: 30%;
-  }
-}
-
+      @media (max-width:500px){
+        .logo-wrap {display: none;}
+      }
       @media (max-width:390px){
         .nav{display: none;}
         .brand-text {
@@ -108,7 +104,6 @@
           font-size: 16px;
           color: rgba(255, 255, 255, 0.969);
         }
-
       }
     </style>
   </head>
@@ -143,11 +138,14 @@
 
         <div style="display:flex;gap:10px;align-items:center" class="desktop-nav">
           <nav class="nav">
-            <a href="#home"><box-icon name='home' animation='tada' color='#FFFFFF' ></box-icon></a>
+            <a href="#home">Domů</a>
+            <a href="#about">O mně</a>
+            <a href="#projects">Projekty</a>
+            <a href="#contact">Kontakt</a>
           </nav>
         </div>
       </header>
-      <div id="three-container"></div>
+
       <div class="hscroller" id="scroller" tabindex="0">
         <section class="panel" id="home">
           <div class="card">
@@ -168,7 +166,7 @@
           <div class="card">
             <h1>O mně</h1>
             <div style="display: flex; justify-content: center; align-items: center;">
-               <p>Takže... Učím se programovat a designovat webové stránky (HTML, CSS, JS), programovat v Reactu, Pythonu, Javě. V budoucnu mám v plánu jsi založit s mým kámošem <a href="" style="color: #3b82f6;">Vojtěchem Wilhelmem Skybou</a> českou firmu, která bude konkurenceschopná Applu.</p>
+               <p>Takže... Učím se programovat a designovat webové stránky (HTML, CSS, JS), programovat v Reactu, Pythonu, Javě. V budoucnu mám v plánu jsi založit s mým kámošem <a href="" style="color: #3b82f6;">Wilhemem Vojtěchem Skybou</a> českou firmu, která bude konkurenceschopná Applu.</p>
             </div>
             <div style="margin-top:18px;display:flex;gap:12px;justify-content:center">
               <button class="cta" onclick="downloadCV()">Stáhni CV - rok 2025</button>
@@ -206,35 +204,8 @@
     </div>
 
     <!-- Three.js CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-<script>
-  if (window.innerWidth > 768) {
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById('three-container').appendChild(renderer.domElement);
-
-    const geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
-    const material = new THREE.MeshNormalMaterial();
-    const torusKnot = new THREE.Mesh(geometry, material);
-    scene.add(torusKnot);
-
-    camera.position.z = 50;
-
-    function animate() {
-      requestAnimationFrame(animate);
-      torusKnot.rotation.x += 0.01;
-      torusKnot.rotation.y += 0.01;
-      renderer.render(scene, camera);
-    }
-
-    animate();
-  }
-</script>
-
+    <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
     <script>
-      
       // 1) Vertical wheel -> horizontal scroll mapping
       const scroller = document.getElementById('scroller');
       scroller.addEventListener('wheel', (e)=>{
@@ -269,10 +240,17 @@
     const link = document.createElement('a');
     link.href = 'zivotopis.pdf'; // název a cesta k tvému PDF
     link.download = 'Životopis';
+    alert("Stahování dokončeno") // název souboru při stažení
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   }
+  window.downloadCV = downloadCV;
+      // 2) Three.js: subtle torus-knot with environment reflections
+      const wrap = document.getElementById('threewrap');
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(50, window.innerWidth / (window.innerHeight - 92), 0.1, 1000);
+      camera.position.set(0, 0, 6);
 
       const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
       renderer.setSize(window.innerWidth, window.innerHeight - 92);
@@ -287,6 +265,12 @@
       dir.position.set(5,10,7);
       scene.add(dir);
 
+      // torus knot material
+      const geo = new THREE.TorusKnotGeometry(1.6, 0.4, 220, 32);
+      const mat = new THREE.MeshStandardMaterial({color:0x0f1724, metalness:0.95, roughness:0.05, envMapIntensity:1.0});
+      const knot = new THREE.Mesh(geo, mat);
+      knot.rotation.x = 0.6;
+      scene.add(knot);
 
       // subtle environment via gradient sphere
       const envGeo = new THREE.SphereGeometry(80, 32, 32);
@@ -365,17 +349,6 @@
         logoCanvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); isDown=true; const p=pos(e); eraseAt(p.x,p.y); }, {passive:false});
         logoCanvas.addEventListener('touchmove', (e)=>{ e.preventDefault(); if(!isDown) return; const p=pos(e); eraseAt(p.x,p.y); }, {passive:false});
         logoCanvas.addEventListener('touchend', ()=> isDown=false);
-
-        // small helper: if user wants to reset
-        window.resetLogoScratch = ()=>{ ctx.setTransform(1,0,0,1,0,0); drawOverlay(); }
-      })();
-
-      // 4) Toggle rotation
-      (function(){
-        const wrap = document.getElementById('logoSVGWrap');
-        const btn = document.getElementById('toggleLogo');
-        let paused = false;
-        btn.addEventListener('click', ()=>{ paused = !paused; if(paused){ wrap.classList.add('logo-paused'); btn.textContent = 'Play logo'; } else { wrap.classList.remove('logo-paused'); btn.textContent = 'Pause logo'; } });
       })();
     </script>
   </body>
